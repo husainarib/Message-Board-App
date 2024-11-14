@@ -33,10 +33,10 @@ class MyApp extends StatelessWidget {
 
 class MessageBoardListScreen extends StatelessWidget {
   final List<Map<String, String>> messageBoards = [
-    {'name': 'General!', 'iconUrl': 'lib/img/general.png'},
-    {'name': 'Gaming!', 'iconUrl': 'lib/img/gaming.png'},
-    {'name': 'Politics!', 'iconUrl': 'lib/img/politics.png'},
-    {'name': 'Questions!', 'iconUrl': 'lib/img/question.png'},
+    {'name': 'General', 'iconUrl': 'lib/img/general.png'},
+    {'name': 'Gaming', 'iconUrl': 'lib/img/gaming.png'},
+    {'name': 'Politics', 'iconUrl': 'lib/img/politics.png'},
+    {'name': 'Questions', 'iconUrl': 'lib/img/question.png'},
   ];
 
   @override
@@ -47,11 +47,11 @@ class MessageBoardListScreen extends StatelessWidget {
       ),
       body: GridView.builder(
         padding: EdgeInsets.all(10),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 1,
+          childAspectRatio: 0.8,
         ),
         itemCount: messageBoards.length,
         itemBuilder: (context, index) {
@@ -86,10 +86,13 @@ class MessageBoardListScreen extends StatelessWidget {
                   Text(
                     board['name']!,
                     style: TextStyle(
-                      fontSize: 50,
+                      fontSize: 35, 
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis, 
                   ),
                 ],
               ),
