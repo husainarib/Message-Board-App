@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'LoginScreen.dart';
+import 'RegisterScreen.dart';
 import 'auth_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -15,14 +20,13 @@ class MyApp extends StatelessWidget {
       title: 'Firebase Auth App',
       theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: '/',
-      // routes: {
-      //   '/': (context) => LoginScreen(),
-      //   '/home': (context) =>
-      //       MessageBoardListScreen(), 
-      //   '/register': (context) =>
-      //   // T0D0 create a RegisterScreen
-      //       RegisterScreen(), 
-      // },
+      routes: {
+        '/': (context) => LoginScreen(),
+        '/home': (context) => MessageBoardListScreen(),
+        '/register': (context) =>
+            // T0D0 create a RegisterScreen
+            RegisterScreen(),
+      },
     );
   }
 }
