@@ -1,4 +1,31 @@
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Firebase Auth App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/',
+      // routes: {
+      //   '/': (context) => LoginScreen(),
+      //   '/home': (context) =>
+      //       MessageBoardListScreen(), 
+      //   '/register': (context) =>
+      //   // T0D0 create a RegisterScreen
+      //       RegisterScreen(), 
+      // },
+    );
+  }
+}
 
 class MessageBoardListScreen extends StatelessWidget {
   final List<Map<String, String>> messageBoards = [
@@ -89,10 +116,4 @@ class ChatScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: MessageBoardListScreen(),
-  ));
 }
