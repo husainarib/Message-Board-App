@@ -4,6 +4,9 @@ import 'RegisterScreen.dart';
 import 'auth_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'ProfileScreen.dart';
+import 'SettingsScreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,9 +26,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginScreen(),
         '/home': (context) => MessageBoardListScreen(),
-        '/register': (context) =>
-            // T0D0 create a RegisterScreen
-            RegisterScreen(),
+        '/register': (context) => RegisterScreen(),
+        '/profile': (context) => ProfileScreen(),
+        '/settings': (context) => SettingsScreen(),
       },
     );
   }
@@ -44,10 +47,60 @@ class MessageBoardListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Message Boards'),
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Navigation Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('Message Boards'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/home');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+          ],
+        ),
       ),
       body: GridView.builder(
         padding: EdgeInsets.all(10),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
@@ -59,7 +112,6 @@ class MessageBoardListScreen extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              // Navigate to the chat screen for the selected board
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -86,13 +138,12 @@ class MessageBoardListScreen extends StatelessWidget {
                   Text(
                     board['name']!,
                     style: TextStyle(
-                      fontSize: 35, 
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis, 
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -104,22 +155,109 @@ class MessageBoardListScreen extends StatelessWidget {
   }
 }
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final String boardName;
 
   ChatScreen({required this.boardName});
 
   @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  // Function to send a new message
+  void _sendMessage() async {
+    if (_messageController.text.isNotEmpty) {
+      await FirebaseFirestore.instance
+          .collection('message_boards')
+          .doc(widget.boardName)
+          .collection('messages')
+          .add({
+        'message': _messageController.text,
+        'username': 'User', // Replace with actual user's display name
+        'datetime': DateTime.now(),
+      });
+      _messageController.clear();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(boardName),
+        title: Text(widget.boardName),
       ),
-      body: Center(
-        child: Text(
-          'Welcome to the $boardName chat!',
-          style: TextStyle(fontSize: 24),
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('message_boards')
+                  .doc(widget.boardName)
+                  .collection('messages')
+                  .orderBy('datetime', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                final messages = snapshot.data!.docs;
+
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    var messageData = messages[index];
+                    var messageText = messageData['message'];
+                    var username = messageData['username'];
+                    var datetime = messageData['datetime'].toDate();
+
+                    return ListTile(
+                      title: Text(
+                        username,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(messageText),
+                      trailing: Text(
+                        '${datetime.hour}:${datetime.minute} - ${datetime.month}/${datetime.day}/${datetime.year}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your message...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
