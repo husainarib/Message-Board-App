@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,11 +13,28 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _username = '';
 
   @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          _username = userDoc['username'] ?? 'User';
+        });
+      }
+    }
   }
 
   // Function to send a new message
@@ -28,11 +46,17 @@ class _ChatScreenState extends State<ChatScreen> {
           .collection('messages')
           .add({
         'message': _messageController.text,
-        'username': 'User', // Replace with actual user's display name
+        'username': _username,
         'datetime': DateTime.now(),
       });
       _messageController.clear();
     }
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override
