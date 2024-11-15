@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MessageBoardListScreen extends StatelessWidget {
+  // MESSAGE BOARD
   final List<Map<String, String>> messageBoards = [
     {
       'name': 'General',
@@ -73,6 +74,7 @@ class MessageBoardListScreen extends StatelessWidget {
           },
         ),
       ),
+      // MENU
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -86,6 +88,7 @@ class MessageBoardListScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
+            // MESSAGE BOARD
             ListTile(
               leading: Icon(Icons.message),
               title: Text('Message Boards'),
@@ -94,6 +97,7 @@ class MessageBoardListScreen extends StatelessWidget {
                 Navigator.pushNamed(context, '/home');
               },
             ),
+            // PROFILE
             ListTile(
               leading: Icon(Icons.person),
               title: Text('Profile'),
@@ -102,6 +106,7 @@ class MessageBoardListScreen extends StatelessWidget {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
+            // SETTINGS
             ListTile(
               leading: Icon(Icons.settings),
               title: Text('Settings'),
@@ -113,64 +118,80 @@ class MessageBoardListScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: GridView.builder(
-        padding: EdgeInsets.all(10),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 0.8,
-        ),
-        itemCount: messageBoards.length,
-        itemBuilder: (context, index) {
-          var board = messageBoards[index];
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'lib/img/main_bg.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.2),
+            ),
+          ),
+          GridView.builder(
+            padding: const EdgeInsets.all(10),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 0.8,
+            ),
+            itemCount: messageBoards.length,
+            itemBuilder: (context, index) {
+              var board = messageBoards[index];
 
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(
-                    boardName: board['name']!,
-                    backgroundImage: board['backgroundImage']!,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        boardName: board['name']!,
+                        backgroundImage: board['backgroundImage']!,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(board['backgroundImage']!),
+                      fit: BoxFit.cover,
+                    ),
+                    color: Colors.blueAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        board['iconUrl']!,
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        height: MediaQuery.of(context).size.width * 0.3,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        board['name']!,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               );
             },
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(board['backgroundImage']!),
-                    fit: BoxFit.cover),
-                color: Colors.blueAccent.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    board['iconUrl']!,
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: MediaQuery.of(context).size.width * 0.3,
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    board['name']!,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

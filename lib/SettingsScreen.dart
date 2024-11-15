@@ -97,6 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // EMAIL TEXT FIELD
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(labelText: 'Email'),
@@ -110,6 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   return null;
                 },
               ),
+              // PASSWORD TEXT FIELD
               TextFormField(
                 controller: _passwordController,
                 decoration: InputDecoration(labelText: 'Password'),
@@ -123,6 +125,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   return null;
                 },
               ),
+              // DATE OF BIRTH TEXT FIELD
               TextFormField(
                 controller: _dobController,
                 decoration: InputDecoration(

@@ -109,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: _isEditing ? _buildEditForm() : _buildProfileView(),
       ),
     );

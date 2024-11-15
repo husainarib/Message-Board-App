@@ -18,18 +18,21 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // EMAIL
             TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 10),
+            // PASSWORD
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
             SizedBox(height: 20),
+            // LOGIN BUTTON
             ElevatedButton(
               onPressed: () async {
                 final email = _emailController.text;
@@ -47,11 +50,12 @@ class LoginScreen extends StatelessWidget {
               },
               child: Text('Login'),
             ),
+            // REGISTER BUTTON
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/register');
               },
-              child: Text('Don\'t have an account? Register here'),
+              child: Text('Don\'t have an account? Register here!'),
             ),
           ],
         ),

@@ -81,7 +81,7 @@ class RegisterScreen extends StatelessWidget {
                 // Register deafult username
                 final username =
                     '${firstName[0].toLowerCase()}${lastName.toLowerCase()}';
-                // Register the user
+                // Register user
                 User? user = await _authService.register(email, password);
 
                 if (user != null) {
