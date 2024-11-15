@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -12,6 +14,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void dispose() {
@@ -21,21 +24,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-  void _updateSettings() {
+  // Update Settings method
+  Future<void> _updateSettings() async {
     if (_formKey.currentState!.validate()) {
-      // TODO update settings logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Settings updated!')),
-      );
+      final user = _auth.currentUser;
+      final userId = user?.uid;
+
+      if (user != null && userId != null) {
+        try {
+          // Update email
+          if (_emailController.text.isNotEmpty &&
+              _emailController.text != user.email) {
+            await user.verifyBeforeUpdateEmail(_emailController.text);
+          }
+
+          // Update password
+          if (_passwordController.text.isNotEmpty) {
+            await user.updatePassword(_passwordController.text);
+          }
+
+          // Update date of birth in Firestore
+          await FirebaseFirestore.instance.collection('users').doc(userId).set({
+            'dob': _dobController.text,
+          }, SetOptions(merge: true));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Settings updated!')),
+          );
+        } on FirebaseAuthException catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update settings: ${e.message}')),
+          );
+        }
+      }
     }
   }
 
-  void _logout() {
-    // TODO logout logic
+  // Logout Method
+  Future<void> _logout() async {
+    await _auth.signOut();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Logged out successfully!')),
     );
-    Navigator.pop(context);
+    Navigator.popUntil(context, ModalRoute.withName('/'));
   }
 
   @override
@@ -101,7 +132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ElevatedButton(
                 onPressed: _logout,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: const Color.fromARGB(255, 255, 86, 74),
                 ),
                 child: Text('Log Out'),
               ),
