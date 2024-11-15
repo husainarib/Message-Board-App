@@ -37,10 +37,26 @@ class MyApp extends StatelessWidget {
 
 class MessageBoardListScreen extends StatelessWidget {
   final List<Map<String, String>> messageBoards = [
-    {'name': 'General', 'iconUrl': 'lib/img/general.png'},
-    {'name': 'Gaming', 'iconUrl': 'lib/img/gaming.png'},
-    {'name': 'Politics', 'iconUrl': 'lib/img/politics.png'},
-    {'name': 'Questions', 'iconUrl': 'lib/img/question.png'},
+    {
+      'name': 'General',
+      'iconUrl': 'lib/img/general.png',
+      'backgroundImage': 'lib/img/general_bg.png'
+    },
+    {
+      'name': 'Gaming',
+      'iconUrl': 'lib/img/gaming.png',
+      'backgroundImage': 'lib/img/gaming_bg.jpg'
+    },
+    {
+      'name': 'Politics',
+      'iconUrl': 'lib/img/politics.png',
+      'backgroundImage': 'lib/img/politics_bg.png'
+    },
+    {
+      'name': 'Questions',
+      'iconUrl': 'lib/img/question.png',
+      'backgroundImage': 'lib/img/questions_bg.jpg'
+    },
   ];
 
   @override
@@ -122,6 +138,9 @@ class MessageBoardListScreen extends StatelessWidget {
             },
             child: Container(
               decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage(board['backgroundImage']!),
+                    fit: BoxFit.cover),
                 color: Colors.blueAccent.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.grey.shade300),
