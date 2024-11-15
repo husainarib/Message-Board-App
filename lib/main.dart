@@ -130,7 +130,10 @@ class MessageBoardListScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatScreen(boardName: board['name']!),
+                  builder: (context) => ChatScreen(
+                    boardName: board['name']!,
+                    backgroundImage: board['backgroundImage']!,
+                  ),
                 ),
               );
             },

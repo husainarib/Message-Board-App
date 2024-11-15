@@ -4,8 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatScreen extends StatefulWidget {
   final String boardName;
+  final String backgroundImage;
 
-  ChatScreen({required this.boardName});
+  ChatScreen({required this.boardName, required this.backgroundImage});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -65,67 +66,93 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.boardName),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('message_boards')
-                  .doc(widget.boardName)
-                  .collection('messages')
-                  .orderBy('datetime', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                final messages = snapshot.data!.docs;
-
-                return ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    var messageData = messages[index];
-                    var messageText = messageData['message'];
-                    var username = messageData['username'];
-                    var datetime = messageData['datetime'].toDate();
-
-                    return ListTile(
-                      title: Text(
-                        username,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(messageText),
-                      trailing: Text(
-                        '${datetime.hour}:${datetime.minute} - ${datetime.month}/${datetime.day}/${datetime.year}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    );
-                  },
-                );
-              },
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              widget.backgroundImage,
+              fit: BoxFit.cover,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your message...',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
             ),
+          ),
+          // CHAT UI
+          Column(
+            children: [
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('message_boards')
+                      .doc(widget.boardName)
+                      .collection('messages')
+                      .orderBy('datetime', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    final messages = snapshot.data!.docs;
+                    return ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        var messageData = messages[index];
+                        var messageText = messageData['message'];
+                        var username = messageData['username'];
+                        var datetime = messageData['datetime'].toDate();
+
+                        return ListTile(
+                          // USERNAME
+                          title: Text(
+                            username,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          // CHAT TEXT
+                          subtitle: Text(
+                            messageText,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          // DATE AND TIME
+                          trailing: Text(
+                            '${datetime.hour}:${datetime.minute} - ${datetime.month}/${datetime.day}/${datetime.year}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your message...',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send, color: Colors.white),
+                      onPressed: _sendMessage,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
