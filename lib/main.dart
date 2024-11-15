@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'ChatScreen.dart';
 import 'LoginScreen.dart';
 import 'RegisterScreen.dart';
-import 'auth_service.dart';
 import 'firebase_options.dart';
 import 'ProfileScreen.dart';
 import 'SettingsScreen.dart';
