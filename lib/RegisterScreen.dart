@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatelessWidget {
   final AuthService _authService = AuthService();
@@ -8,6 +9,8 @@ class RegisterScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +23,25 @@ class RegisterScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // FIRST NAME
+            TextField(
+              controller: _firstNameController,
+              decoration: InputDecoration(labelText: 'First Name'),
+            ),
+            SizedBox(height: 10),
+            // LAST NAME
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(labelText: 'Last Name'),
+            ),
+            SizedBox(height: 10),
+            // EMAIL
             TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
             ),
+            // PASSWORD
             SizedBox(height: 10),
             TextField(
               controller: _passwordController,
@@ -32,6 +49,7 @@ class RegisterScreen extends StatelessWidget {
               obscureText: true,
             ),
             SizedBox(height: 10),
+            // CONFIRM PASSWORD
             TextField(
               controller: _confirmPasswordController,
               decoration: InputDecoration(labelText: 'Confirm Password'),
@@ -43,6 +61,8 @@ class RegisterScreen extends StatelessWidget {
                 final email = _emailController.text;
                 final password = _passwordController.text;
                 final confirmPassword = _confirmPasswordController.text;
+                final firstName = _firstNameController.text.trim();
+                final lastName = _lastNameController.text.trim();
 
                 if (password != confirmPassword) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -51,14 +71,38 @@ class RegisterScreen extends StatelessWidget {
                   return;
                 }
 
-                User? user = await _authService.register(
-                    email, password);
+                if (firstName.isEmpty || lastName.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('First and Last Name are required.')),
+                  );
+                  return;
+                }
+                // Register deafult username
+                final username =
+                    '${firstName[0].toLowerCase()}${lastName.toLowerCase()}';
+                // Register the user
+                User? user = await _authService.register(email, password);
 
                 if (user != null) {
+                  // Save user information to Firestore
+                  final userId = user.uid;
+                  final now = DateTime.now();
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .set({
+                    'first_name': firstName,
+                    'last_name': lastName,
+                    'email': email,
+                    // default user role, can be changed in app
+                    'user_role': username,
+                    'registration_datetime': now.toIso8601String(),
+                  });
+
                   Navigator.pushReplacementNamed(context, '/home');
-                }
-                // Registration failed 
-                else {
+                } else {
+                  // Registration failed
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content:
@@ -70,8 +114,7 @@ class RegisterScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(
-                    context);
+                Navigator.pop(context);
               },
               child: Text('Already have an account? Login here'),
             ),

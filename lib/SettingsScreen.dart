@@ -36,6 +36,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (_emailController.text.isNotEmpty &&
               _emailController.text != user.email) {
             await user.verifyBeforeUpdateEmail(_emailController.text);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                      'Verification email sent to ${_emailController.text}. Please verify to update your email.')),
+            );
           }
 
           // Update password
@@ -49,12 +54,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }, SetOptions(merge: true));
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Settings updated!')),
+            const SnackBar(
+                content: Text(
+                    'Settings updated (except email, pending verification).')),
           );
         } on FirebaseAuthException catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update settings: ${e.message}')),
-          );
+          // ERROR HANDLING
+          if (e.code == 'requires-recent-login') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Please re-authenticate to update settings.')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Failed to update settings: ${e.message}')),
+            );
+          }
         }
       }
     }
